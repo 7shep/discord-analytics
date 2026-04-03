@@ -35,6 +35,35 @@ export interface TopUsers {
   }>;
 }
 
+export interface UserInfo {
+  discordId: string;
+  username: string;
+  avatarUrl: string | null;
+}
+
+export interface GuildListItem {
+  id: string;
+  name: string;
+  iconUrl: string | null;
+  tracked: boolean;
+}
+
+export async function fetchMe(): Promise<UserInfo | null> {
+  const res = await fetch("/auth/me");
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchMyGuilds(): Promise<GuildListItem[]> {
+  const res = await fetch("/guilds");
+  if (!res.ok) throw new Error("Failed to fetch guilds");
+  return res.json();
+}
+
+export async function logout(): Promise<void> {
+  await fetch("/auth/logout", { method: "POST" });
+}
+
 const BASE = "";
 
 export async function fetchOverview(guildId: string): Promise<GuildOverview> {

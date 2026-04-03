@@ -6,6 +6,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      '/auth': 'http://localhost:3000',
+      '/guilds': 'http://localhost:3000',
       '/guild': 'http://localhost:3000',
       '/health': 'http://localhost:3000',
     },

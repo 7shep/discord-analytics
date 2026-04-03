@@ -13,7 +13,8 @@ function requireEnv(key: string): string {
 export const config = {
   discord: {
     token: requireEnv("DISCORD_TOKEN"),
-    clientId: process.env.DISCORD_CLIENT_ID ?? "",
+    clientId: requireEnv("DISCORD_CLIENT_ID"),
+    clientSecret: requireEnv("DISCORD_CLIENT_SECRET"),
   },
   database: {
     url: requireEnv("DATABASE_URL"),
@@ -24,5 +25,7 @@ export const config = {
   },
   api: {
     port: parseInt(process.env.PORT ?? "3000", 10),
+    jwtSecret: requireEnv("JWT_SECRET"),
+    frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
   },
 };
