@@ -3,6 +3,7 @@ import { createClient } from "./client";
 import { handleMessageCreate } from "./events/messageCreate";
 import { handleGuildMemberAdd } from "./events/guildMemberAdd";
 import { startAggregationWorker } from "../workers/aggregationWorker";
+import { startApi } from "../api/index";
 
 const client = createClient();
 
@@ -10,6 +11,7 @@ client.once("clientReady", (c) => {
   console.log(`Bot ready! Logged in as ${c.user.tag}`);
   console.log(`Serving ${c.guilds.cache.size} guild(s)`);
   startAggregationWorker();
+  startApi();
 });
 
 client.on("messageCreate", handleMessageCreate);
