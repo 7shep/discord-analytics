@@ -1,10 +1,14 @@
 import { prisma } from "./prisma";
 
-/** Upsert a user by Discord ID — creates if new, returns existing if known. */
-export async function upsertUser(discordId: string) {
+/** Upsert a user by Discord ID — creates if new, updates username/avatar if changed. */
+export async function upsertUser(
+  discordId: string,
+  username?: string,
+  avatar?: string | null
+) {
   return prisma.user.upsert({
     where: { discordId },
-    update: {},
-    create: { discordId },
+    update: { username, avatar: avatar ?? undefined },
+    create: { discordId, username, avatar },
   });
 }

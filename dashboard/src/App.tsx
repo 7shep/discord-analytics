@@ -85,7 +85,7 @@ function App() {
             <StatCard
               label="Growth vs Yesterday"
               value={`${overview.growth.messagesVsYesterday > 0 ? "+" : ""}${overview.growth.messagesVsYesterday}%`}
-              subtitle="message volume"
+              // subtitle="message volume"
             />
           </div>
         </>

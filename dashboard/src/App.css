@@ -112,3 +112,57 @@ h2 {
 .status.error {
   color: #ef4444;
 }
+
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  background: #12121f;
+  border-radius: 8px;
+}
+
+.leaderboard-rank {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7c3aed;
+  min-width: 2rem;
+}
+
+.leaderboard-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.leaderboard-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.leaderboard-username {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.leaderboard-id {
+  font-size: 0.7rem;
+  color: #555;
+}
+
+.leaderboard-count {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7c3aed;
+  white-space: nowrap;
+}

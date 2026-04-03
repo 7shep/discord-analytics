@@ -29,6 +29,8 @@ export interface TopUsers {
   leaderboard: Array<{
     rank: number;
     discordId: string;
+    username: string;
+    avatarUrl: string | null;
     messageCount: number;
   }>;
 }

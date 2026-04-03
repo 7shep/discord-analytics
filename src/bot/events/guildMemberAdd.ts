@@ -7,7 +7,7 @@ export async function handleGuildMemberAdd(member: GuildMember) {
   if (member.user.bot) return;
 
   try {
-    await upsertUser(member.user.id);
+    await upsertUser(member.user.id, member.user.username, member.user.avatar);
     await upsertGuild(member.guild.id, member.guild.name);
 
     console.log(`New member tracked: ${member.user.tag} in ${member.guild.name}`);

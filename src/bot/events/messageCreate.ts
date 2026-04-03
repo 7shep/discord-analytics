@@ -12,7 +12,11 @@ export async function handleMessageCreate(message: Message) {
   if (!message.guild) return;
 
   try {
-    const user = await upsertUser(message.author.id);
+    const user = await upsertUser(
+      message.author.id,
+      message.author.username,
+      message.author.avatar
+    );
     const guild = await upsertGuild(message.guild.id, message.guild.name);
 
     await insertMessage(user.id, guild.id);

@@ -110,15 +110,28 @@ export async function getTopUsers(
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
   });
-  const userMap = new Map(users.map((u) => [u.id, u.discordId]));
+  const userMap = new Map(
+    users.map((u) => [u.id, {
+      discordId: u.discordId,
+      username: u.username,
+      avatarUrl: u.avatar
+        ? `https://cdn.discordapp.com/avatars/${u.discordId}/${u.avatar}.png`
+        : null,
+    }])
+  );
 
   return {
     guildId: guild.discordId,
     guildName: guild.name,
-    leaderboard: topUsers.map((u, i) => ({
-      rank: i + 1,
-      discordId: userMap.get(u.userId) ?? "Unknown",
-      messageCount: u._count.id,
-    })),
+    leaderboard: topUsers.map((u, i) => {
+      const user = userMap.get(u.userId);
+      return {
+        rank: i + 1,
+        discordId: user?.discordId ?? "Unknown",
+        username: user?.username ?? "Unknown",
+        avatarUrl: user?.avatarUrl ?? null,
+        messageCount: u._count.id,
+      };
+    }),
   };
 }
