@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  discordId String    @unique
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Guild {
+  id        Int         @id @default(autoincrement())
+  discordId String      @unique
+  name      String
+  messages  Message[]
+  dailyStats DailyStat[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  guildId   Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  guild     Guild    @relation(fields: [guildId], references: [id])
+
+  @@index([guildId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model DailyStat {
+  id           Int      @id @default(autoincrement())
+  guildId      Int
+  date         DateTime @db.Date
+  messageCount Int      @default(0)
+  activeUsers  Int      @default(0)
+  guild        Guild    @relation(fields: [guildId], references: [id])
+
+  @@unique([guildId, date])
+  @@index([date])
+}

@@ -15,6 +15,9 @@ export const config = {
     token: requireEnv("DISCORD_TOKEN"),
     clientId: process.env.DISCORD_CLIENT_ID ?? "",
   },
+  database: {
+    url: requireEnv("DATABASE_URL"),
+  },
   supabase: {
     url: requireEnv("SUPABASE_URL"),
     anonKey: requireEnv("SUPABASE_ANON_KEY"),
