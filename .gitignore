@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
