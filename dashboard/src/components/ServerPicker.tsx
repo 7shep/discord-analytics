@@ -56,20 +56,31 @@ export function ServerPicker({ onSelect, search = "" }: Props) {
             <span className="server-badge tracked">Tracked</span>
           </button>
         ))}
-        {untracked.map((guild) => (
-          <div key={guild.id} className="server-card disabled">
-            <img
-              className="server-icon"
-              src={
-                guild.iconUrl ??
-                `https://cdn.discordapp.com/embed/avatars/${parseInt(guild.id) % 5}.png`
-              }
-              alt=""
-            />
-            <span className="server-name">{guild.name}</span>
-            <span className="server-badge untracked">Bot not added</span>
-          </div>
-        ))}
+        {untracked.map((guild) => {
+          const clientId = import.meta.env.VITE_BOT_CLIENT_ID;
+          const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&scope=bot&permissions=8&guild_id=${guild.id}`;
+          return (
+            <a
+              key={guild.id}
+              className="server-card"
+              href={inviteUrl}
+              target="_blank"
+              rel="noreferrer"
+              title="Click to add the bot to this server"
+            >
+              <img
+                className="server-icon"
+                src={
+                  guild.iconUrl ??
+                  `https://cdn.discordapp.com/embed/avatars/${parseInt(guild.id) % 5}.png`
+                }
+                alt=""
+              />
+              <span className="server-name">{guild.name}</span>
+              <span className="server-badge untracked">Add Bot</span>
+            </a>
+          );
+        })}
       </div>
     </div>
   );

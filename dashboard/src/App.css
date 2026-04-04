@@ -74,6 +74,7 @@
   transition: border-color 0.2s, transform 0.15s;
   color: inherit;
   font: inherit;
+  text-decoration: none;
 }
 
 .server-card:hover {
