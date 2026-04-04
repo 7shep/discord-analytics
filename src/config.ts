@@ -28,5 +28,9 @@ export const config = {
     jwtSecret: requireEnv("JWT_SECRET"),
     frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
     publicUrl: process.env.PUBLIC_URL ?? "",
+    adminIds: (process.env.ADMIN_IDS ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean),
   },
 };

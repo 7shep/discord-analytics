@@ -9,6 +9,11 @@ import {
 
 const router = Router();
 
+interface JwtPayload {
+  discordId: string;
+  accessToken: string;
+}
+
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies?.token as string | undefined;
   if (!token) {
@@ -16,18 +21,28 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
     return;
   }
   try {
-    jwt.verify(token, config.api.jwtSecret);
+    const payload = jwt.verify(token, config.api.jwtSecret) as JwtPayload;
+    (req as Request & { discordId: string }).discordId = payload.discordId;
     next();
   } catch {
     res.status(401).json({ error: "Invalid token" });
   }
 }
 
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const discordId = (req as Request & { discordId?: string }).discordId;
+  if (!discordId || !config.api.adminIds.includes(discordId)) {
+    res.status(403).json({ error: "Admin access required" });
+    return;
+  }
+  next();
+}
+
 router.get("/", requireAuth, (_req, res) => {
   res.json(getPresenceConfig());
 });
 
-router.put("/", requireAuth, (req, res) => {
+router.put("/", requireAuth, requireAdmin, (req, res) => {
   const body = req.body as Partial<PresenceConfig>;
   const { status, slots, intervalSeconds } = body;
 

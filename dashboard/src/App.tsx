@@ -223,7 +223,7 @@ function App() {
   if (page === "presence") {
     return (
       <DashboardLayout {...layoutProps}>
-        <PresencePage />
+        <PresencePage isAdmin={user.isAdmin ?? false} />
       </DashboardLayout>
     );
   }

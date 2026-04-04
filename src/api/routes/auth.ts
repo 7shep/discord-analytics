@@ -114,6 +114,7 @@ router.get("/me", (req, res) => {
       avatarUrl: payload.avatar
         ? `https://cdn.discordapp.com/avatars/${payload.discordId}/${payload.avatar}.png`
         : null,
+      isAdmin: config.api.adminIds.includes(payload.discordId),
     });
   } catch {
     res.status(401).json({ error: "Invalid token" });

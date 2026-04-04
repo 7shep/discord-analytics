@@ -39,6 +39,7 @@ export interface UserInfo {
   discordId: string;
   username: string;
   avatarUrl: string | null;
+  isAdmin?: boolean;
 }
 
 export interface GuildListItem {

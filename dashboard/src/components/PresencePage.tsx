@@ -66,6 +66,7 @@ function SlotRow({
   onChange,
   onRemove,
   onMove,
+  disabled = false,
 }: {
   slot: PresenceSlot;
   index: number;
@@ -73,6 +74,7 @@ function SlotRow({
   onChange: (updated: PresenceSlot) => void;
   onRemove: () => void;
   onMove: (dir: -1 | 1) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex items-center gap-2 py-2.5 border-b border-border last:border-0">
@@ -102,7 +104,8 @@ function SlotRow({
       <select
         value={slot.type}
         onChange={(e) => onChange({ ...slot, type: e.target.value as PresenceSlot["type"] })}
-        className="h-9 w-32 rounded-lg border border-border bg-bg-primary px-2 text-sm text-text-primary outline-none focus:border-accent-blue/50 cursor-pointer flex-shrink-0"
+        disabled={disabled}
+        className={`h-9 w-32 rounded-lg border border-border bg-bg-primary px-2 text-sm text-text-primary outline-none focus:border-accent-blue/50 flex-shrink-0 ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
       >
         {ACTIVITY_TYPES.map((t) => (
           <option key={t} value={t}>{t}</option>
@@ -115,24 +118,27 @@ function SlotRow({
         value={slot.template}
         onChange={(e) => onChange({ ...slot, template: e.target.value })}
         maxLength={128}
+        disabled={disabled}
         placeholder="e.g. {servers} servers worth of drama"
-        className="flex-1 h-9 rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary outline-none focus:border-accent-blue/50 placeholder:text-text-muted min-w-0"
+        className={`flex-1 h-9 rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary outline-none focus:border-accent-blue/50 placeholder:text-text-muted min-w-0 ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
       />
 
       {/* Remove */}
-      <button
-        onClick={onRemove}
-        className="h-9 w-9 rounded-lg flex items-center justify-center text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition-colors flex-shrink-0"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
+      {!disabled && (
+        <button
+          onClick={onRemove}
+          className="h-9 w-9 rounded-lg flex items-center justify-center text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition-colors flex-shrink-0"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
 
-export function PresencePage() {
+export function PresencePage({ isAdmin = false }: { isAdmin?: boolean }) {
   const [cfg, setCfg] = useState<PresenceConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -220,6 +226,18 @@ export function PresencePage() {
 
       <PreviewCard slot={previewSlot} status={cfg.status} />
 
+      {!isAdmin && (
+        <div className="rounded-xl border border-border bg-bg-card p-4 mb-6 flex items-center gap-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted flex-shrink-0">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          <p className="text-sm text-text-muted">
+            Only bot admins can edit presence settings. Contact an admin to request changes.
+          </p>
+        </div>
+      )}
+
       {/* Status + interval */}
       <section className="rounded-xl border border-border bg-bg-card p-5 mb-6">
         <h2 className="text-sm font-semibold text-text-primary mb-4">General</h2>
@@ -232,12 +250,13 @@ export function PresencePage() {
               {STATUS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => setCfg({ ...cfg, status: opt.value })}
+                  onClick={() => isAdmin && setCfg({ ...cfg, status: opt.value })}
+                  disabled={!isAdmin}
                   className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
                     cfg.status === opt.value
                       ? "border-accent-blue/50 bg-accent-blue/10 text-text-primary"
                       : "border-border bg-bg-primary text-text-secondary hover:bg-bg-card"
-                  }`}
+                  } ${!isAdmin ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   <span className="h-2.5 w-2.5 rounded-full" style={{ background: opt.color }} />
                   {opt.label}
@@ -257,7 +276,8 @@ export function PresencePage() {
               step={5}
               value={cfg.intervalSeconds}
               onChange={(e) => setCfg({ ...cfg, intervalSeconds: Number(e.target.value) })}
-              className="w-64 accent-accent-blue cursor-pointer"
+              disabled={!isAdmin}
+              className={`w-64 accent-accent-blue ${isAdmin ? "cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
             />
             <p className="text-xs text-text-muted mt-1">Min 10s — Max 300s</p>
           </div>
@@ -282,22 +302,25 @@ export function PresencePage() {
               slot={slot}
               index={i}
               total={cfg.slots.length}
-              onChange={(updated) => updateSlot(i, updated)}
-              onRemove={() => removeSlot(i)}
-              onMove={(dir) => moveSlot(i, dir)}
+              onChange={(updated) => isAdmin && updateSlot(i, updated)}
+              onRemove={() => isAdmin && removeSlot(i)}
+              onMove={(dir) => isAdmin && moveSlot(i, dir)}
+              disabled={!isAdmin}
             />
           ))}
         </div>
 
-        <button
-          onClick={addSlot}
-          className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-text-muted hover:border-accent-blue/50 hover:text-text-primary transition-colors"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Add slot
-        </button>
+        {isAdmin && (
+          <button
+            onClick={addSlot}
+            className="mt-4 flex items-center gap-2 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-text-muted hover:border-accent-blue/50 hover:text-text-primary transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add slot
+          </button>
+        )}
       </section>
 
       {/* Variable reference */}
@@ -317,13 +340,15 @@ export function PresencePage() {
 
       {error && <p className="text-sm text-accent-red mb-4">{error}</p>}
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="rounded-lg bg-accent-blue px-5 py-2 text-sm font-medium text-white hover:bg-accent-blue/80 disabled:opacity-50 transition-colors"
-      >
-        {saving ? "Saving..." : saved ? "Saved!" : "Save Presence"}
-      </button>
+      {isAdmin && (
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-accent-blue px-5 py-2 text-sm font-medium text-white hover:bg-accent-blue/80 disabled:opacity-50 transition-colors"
+        >
+          {saving ? "Saving..." : saved ? "Saved!" : "Save Presence"}
+        </button>
+      )}
     </div>
   );
 }
