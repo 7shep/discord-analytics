@@ -1,6 +1,6 @@
 import { GuildMember } from "discord.js";
-import { upsertUser } from "../../db/users";
-import { upsertGuild } from "../../db/guilds";
+import { upsertUser } from "../../db/users.js";
+import { upsertGuild } from "../../db/guilds.js";
 
 export async function handleGuildMemberAdd(member: GuildMember) {
   // Ignore bots

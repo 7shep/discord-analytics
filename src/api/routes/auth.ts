@@ -5,7 +5,9 @@ import { config } from "../../config.js";
 const router = Router();
 
 const DISCORD_API = "https://discord.com/api/v10";
-const REDIRECT_URI = `http://localhost:${config.api.port}/auth/callback`;
+const REDIRECT_URI = config.api.publicUrl
+  ? `${config.api.publicUrl}/auth/callback`
+  : `http://localhost:${config.api.port}/auth/callback`;
 const SCOPES = "identify guilds";
 
 /** Redirect user to Discord OAuth2 authorization page. */
@@ -76,9 +78,11 @@ router.get("/callback", async (req, res) => {
     );
 
     // Set cookie and redirect to frontend
+    const isProduction = !!config.api.publicUrl;
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

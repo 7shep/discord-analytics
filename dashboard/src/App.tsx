@@ -180,7 +180,7 @@ function App() {
           <p className="login-subtitle">
             Sign in with Discord to view your server analytics
           </p>
-          <a href="/auth/discord" className="login-button">
+          <a href={`${import.meta.env.VITE_API_URL ?? ""}/auth/discord`} className="login-button">
             <svg
               className="discord-icon"
               viewBox="0 0 24 24"

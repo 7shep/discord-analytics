@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 /** Increment message count and track active users for today. */
 export async function updateDailyStats(guildId: number) {

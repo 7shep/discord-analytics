@@ -27,5 +27,6 @@ export const config = {
     port: parseInt(process.env.PORT ?? "3000", 10),
     jwtSecret: requireEnv("JWT_SECRET"),
     frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
+    publicUrl: process.env.PUBLIC_URL ?? "",
   },
 };

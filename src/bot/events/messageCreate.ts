@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
-import { upsertUser } from "../../db/users";
-import { upsertGuild } from "../../db/guilds";
-import { insertMessage } from "../../db/messages";
-import { updateDailyStats } from "../../db/dailyStats";
+import { upsertUser } from "../../db/users.js";
+import { upsertGuild } from "../../db/guilds.js";
+import { insertMessage } from "../../db/messages.js";
+import { updateDailyStats } from "../../db/dailyStats.js";
 
 export async function handleMessageCreate(message: Message) {
   // Ignore bots

@@ -48,26 +48,27 @@ export interface GuildListItem {
   tracked: boolean;
 }
 
+const BASE = import.meta.env.VITE_API_URL ?? "";
+const opts: RequestInit = BASE ? { credentials: "include" } : {};
+
 export async function fetchMe(): Promise<UserInfo | null> {
-  const res = await fetch("/auth/me");
+  const res = await fetch(`${BASE}/auth/me`, opts);
   if (!res.ok) return null;
   return res.json();
 }
 
 export async function fetchMyGuilds(): Promise<GuildListItem[]> {
-  const res = await fetch("/guilds");
+  const res = await fetch(`${BASE}/guilds`, opts);
   if (!res.ok) throw new Error("Failed to fetch guilds");
   return res.json();
 }
 
 export async function logout(): Promise<void> {
-  await fetch("/auth/logout", { method: "POST" });
+  await fetch(`${BASE}/auth/logout`, { ...opts, method: "POST" });
 }
 
-const BASE = "";
-
 export async function fetchOverview(guildId: string): Promise<GuildOverview> {
-  const res = await fetch(`${BASE}/guild/${guildId}/overview`);
+  const res = await fetch(`${BASE}/guild/${guildId}/overview`, opts);
   if (!res.ok) throw new Error("Guild not found");
   return res.json();
 }
@@ -77,7 +78,8 @@ export async function fetchMessagesOverTime(
   days = 30
 ): Promise<MessagesOverTime> {
   const res = await fetch(
-    `${BASE}/guild/${guildId}/messages-over-time?days=${days}`
+    `${BASE}/guild/${guildId}/messages-over-time?days=${days}`,
+    opts
   );
   if (!res.ok) throw new Error("Guild not found");
   return res.json();
@@ -87,7 +89,10 @@ export async function fetchTopUsers(
   guildId: string,
   limit = 10
 ): Promise<TopUsers> {
-  const res = await fetch(`${BASE}/guild/${guildId}/top-users?limit=${limit}`);
+  const res = await fetch(
+    `${BASE}/guild/${guildId}/top-users?limit=${limit}`,
+    opts
+  );
   if (!res.ok) throw new Error("Guild not found");
   return res.json();
 }

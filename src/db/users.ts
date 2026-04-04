@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 /** Upsert a user by Discord ID — creates if new, updates username/avatar if changed. */
 export async function upsertUser(

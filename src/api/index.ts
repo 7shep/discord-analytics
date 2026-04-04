@@ -9,6 +9,19 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+// CORS for cross-domain requests (Vercel frontend -> Railway backend)
+app.use((_req, res, next) => {
+  res.header("Access-Control-Allow-Origin", config.api.frontendUrl);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  if (_req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
 app.use("/auth", authRoutes);
 app.use("/guilds", guildsRoutes);
 app.use("/guild", guildRoutes);

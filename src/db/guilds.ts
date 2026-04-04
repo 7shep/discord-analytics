@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 /** Upsert a guild by Discord ID — creates or updates name. */
 export async function upsertGuild(discordId: string, name: string) {

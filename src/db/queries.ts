@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 /** Get total message count across all guilds. */
 export async function getTotalMessages() {

@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 /** Insert a raw message event. */
 export async function insertMessage(userId: number, guildId: number) {
