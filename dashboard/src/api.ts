@@ -96,3 +96,31 @@ export async function fetchTopUsers(
   if (!res.ok) throw new Error("Guild not found");
   return res.json();
 }
+
+export interface PresenceSlot {
+  id: string;
+  type: "Playing" | "Watching" | "Listening" | "Competing";
+  template: string;
+}
+
+export interface PresenceConfig {
+  status: "online" | "idle" | "dnd" | "invisible";
+  slots: PresenceSlot[];
+  intervalSeconds: number;
+}
+
+export async function fetchPresence(): Promise<PresenceConfig> {
+  const res = await fetch(`${BASE}/bot/presence`, opts);
+  if (!res.ok) throw new Error("Failed to fetch presence config");
+  return res.json();
+}
+
+export async function savePresence(config: PresenceConfig): Promise<void> {
+  const res = await fetch(`${BASE}/bot/presence`, {
+    ...opts,
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  });
+  if (!res.ok) throw new Error("Failed to save presence config");
+}

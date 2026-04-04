@@ -10,6 +10,7 @@ export default defineConfig({
       '/auth': 'http://localhost:3000',
       '/guilds': 'http://localhost:3000',
       '/guild': 'http://localhost:3000',
+      '/bot': 'http://localhost:3000',
       '/health': 'http://localhost:3000',
     },
   },

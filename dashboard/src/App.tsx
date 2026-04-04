@@ -20,6 +20,7 @@ import { ActivityFeed } from "./components/ActivityFeed";
 import { Leaderboard } from "./components/Leaderboard";
 import { ServerPicker } from "./components/ServerPicker";
 import { SettingsPage } from "./components/SettingsPage";
+import { PresencePage } from "./components/PresencePage";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import "./App.css";
 
@@ -214,6 +215,15 @@ function App() {
     return (
       <DashboardLayout {...layoutProps}>
         <SettingsPage user={user} onLogout={handleLogout} />
+      </DashboardLayout>
+    );
+  }
+
+  // Bot Presence page
+  if (page === "presence") {
+    return (
+      <DashboardLayout {...layoutProps}>
+        <PresencePage />
       </DashboardLayout>
     );
   }
