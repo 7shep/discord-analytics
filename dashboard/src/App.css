@@ -36,19 +36,28 @@
   cursor: default;
 }
 
-.homepage-logo {
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 1.25rem;
-  animation: homepage-fade-in 1s ease-out;
-}
-
 .homepage-title {
+  font-family: 'Playfair Display', serif;
   font-size: 3.5rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
+  min-height: 1.2em;
   animation: homepage-fade-in 1s ease-out 0.1s both;
+}
+
+.homepage-cursor {
+  display: inline-block;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.6);
+  animation: homepage-blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes homepage-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .homepage-subtitle {
@@ -124,11 +133,6 @@
 
 .homepage-login:hover .homepage-login-glow {
   background-position: -50% 0;
-}
-
-.homepage-login-icon {
-  flex-shrink: 0;
-  opacity: 0.8;
 }
 
 @keyframes homepage-fade-in {
