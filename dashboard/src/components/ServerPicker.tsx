@@ -57,8 +57,7 @@ export function ServerPicker({ onSelect, search = "" }: Props) {
           </button>
         ))}
         {untracked.map((guild) => {
-          const clientId = import.meta.env.VITE_BOT_CLIENT_ID;
-          const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&scope=bot&permissions=8&guild_id=${guild.id}`;
+          const inviteUrl = `https://discord.com/oauth2/authorize?client_id=1422053050909986916&permissions=8&integration_type=0&scope=bot+applications.commands&guild_id=${guild.id}`;
           return (
             <a
               key={guild.id}
