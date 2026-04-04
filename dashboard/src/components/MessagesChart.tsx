@@ -14,12 +14,6 @@ interface Props {
   onDaysChange: (days: number) => void;
 }
 
-const rangeLabels: Record<number, string> = {
-  7: "Last 7 Days",
-  30: "Last 30 Days",
-  90: "Last 90 Days",
-};
-
 export function MessagesChart({ data, days, onDaysChange }: Props) {
   return (
     <div className="rounded-xl border border-border bg-bg-card p-5">
