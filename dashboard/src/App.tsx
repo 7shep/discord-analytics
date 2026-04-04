@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, lazy, Suspense } from "react";
 import {
   fetchOverview,
   fetchMessagesOverTime,
@@ -20,15 +20,17 @@ import type {
 } from "./api";
 import type { Page } from "./components/layout/Sidebar";
 import { StatCard } from "./components/StatCard";
-import { MessagesChart } from "./components/MessagesChart";
-import { DailyActiveUsers } from "./components/DailyActiveUsers";
-import { ActivityFeed } from "./components/ActivityFeed";
-import { Leaderboard } from "./components/Leaderboard";
-import { VoiceLeaderboard } from "./components/VoiceLeaderboard";
-import { ServerPicker } from "./components/ServerPicker";
-import { SettingsPage } from "./components/SettingsPage";
-import { PresencePage } from "./components/PresencePage";
-import { HomePage } from "./components/HomePage";
+
+// Lazy-loaded pages and heavy components for code-splitting
+const MessagesChart = lazy(() => import("./components/MessagesChart").then(m => ({ default: m.MessagesChart })));
+const DailyActiveUsers = lazy(() => import("./components/DailyActiveUsers").then(m => ({ default: m.DailyActiveUsers })));
+const ActivityFeed = lazy(() => import("./components/ActivityFeed").then(m => ({ default: m.ActivityFeed })));
+const Leaderboard = lazy(() => import("./components/Leaderboard").then(m => ({ default: m.Leaderboard })));
+const VoiceLeaderboard = lazy(() => import("./components/VoiceLeaderboard").then(m => ({ default: m.VoiceLeaderboard })));
+const ServerPicker = lazy(() => import("./components/ServerPicker").then(m => ({ default: m.ServerPicker })));
+const SettingsPage = lazy(() => import("./components/SettingsPage").then(m => ({ default: m.SettingsPage })));
+const PresencePage = lazy(() => import("./components/PresencePage").then(m => ({ default: m.PresencePage })));
+const HomePage = lazy(() => import("./components/HomePage").then(m => ({ default: m.HomePage })));
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import "./App.css";
 
@@ -234,7 +236,11 @@ function App() {
   }
 
   if (!user) {
-    return <HomePage />;
+    return (
+      <Suspense fallback={<div className="app"><p className="status">Loading...</p></div>}>
+        <HomePage />
+      </Suspense>
+    );
   }
 
   // Layout props shared across all authenticated pages
@@ -250,11 +256,17 @@ function App() {
     isAdmin: user.isAdmin ?? false,
   };
 
+  const suspenseFallback = (
+    <p className="text-center text-text-muted py-12">Loading...</p>
+  );
+
   // Settings page
   if (page === "settings") {
     return (
       <DashboardLayout {...layoutProps}>
-        <SettingsPage user={user} onLogout={handleLogout} />
+        <Suspense fallback={suspenseFallback}>
+          <SettingsPage user={user} onLogout={handleLogout} />
+        </Suspense>
       </DashboardLayout>
     );
   }
@@ -263,7 +275,9 @@ function App() {
   if (page === "presence") {
     return (
       <DashboardLayout {...layoutProps}>
-        <PresencePage isAdmin={user.isAdmin ?? false} />
+        <Suspense fallback={suspenseFallback}>
+          <PresencePage isAdmin={user.isAdmin ?? false} />
+        </Suspense>
       </DashboardLayout>
     );
   }
@@ -272,7 +286,9 @@ function App() {
   if (!guildId) {
     return (
       <DashboardLayout {...layoutProps}>
-        <ServerPicker onSelect={setGuildId} search={search} />
+        <Suspense fallback={suspenseFallback}>
+          <ServerPicker onSelect={setGuildId} search={search} />
+        </Suspense>
       </DashboardLayout>
     );
   }
@@ -287,6 +303,7 @@ function App() {
 
   return (
     <DashboardLayout {...layoutProps}>
+      <Suspense fallback={suspenseFallback}>
       {loading && (
         <p className="text-center text-text-muted py-12">Loading...</p>
       )}
@@ -417,6 +434,7 @@ function App() {
           )}
         </>
       )}
+      </Suspense>
     </DashboardLayout>
   );
 }
