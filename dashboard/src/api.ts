@@ -125,3 +125,56 @@ export async function savePresence(config: PresenceConfig): Promise<void> {
   });
   if (!res.ok) throw new Error("Failed to save presence config");
 }
+
+export interface GuildEvent {
+  type: "new_message";
+  guildId: string;
+  username: string;
+  timestamp: string;
+}
+
+/** Connect to the guild WebSocket for live updates. Auto-reconnects on close. */
+export function connectGuildWs(
+  guildId: string,
+  onEvent: (event: GuildEvent) => void
+): () => void {
+  let ws: WebSocket | null = null;
+  let closed = false;
+  let reconnectTimer: ReturnType<typeof setTimeout>;
+
+  function connect() {
+    if (closed) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = BASE ? new URL(BASE).host : window.location.host;
+    ws = new WebSocket(`${protocol}//${host}/ws`);
+
+    ws.onopen = () => {
+      ws?.send(JSON.stringify({ action: "subscribe", guildId }));
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        const event = JSON.parse(e.data as string) as GuildEvent;
+        onEvent(event);
+      } catch {
+        // Ignore malformed messages
+      }
+    };
+
+    ws.onclose = () => {
+      if (!closed) {
+        reconnectTimer = setTimeout(connect, 3000);
+      }
+    };
+  }
+
+  connect();
+
+  // Return cleanup function
+  return () => {
+    closed = true;
+    clearTimeout(reconnectTimer);
+    ws?.close();
+  };
+}

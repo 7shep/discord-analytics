@@ -1,5 +1,6 @@
 import { ActivityType, Client } from "discord.js";
 import { prisma } from "../db/prisma.js";
+import { cacheGet, cacheSet } from "../db/redis.js";
 
 export interface PresenceSlot {
   id: string;
@@ -50,6 +51,9 @@ export function setPresenceConfig(newConfig: PresenceConfig) {
 }
 
 async function getLiveStats(): Promise<Record<string, string>> {
+  const cached = await cacheGet<Record<string, string>>("presence:stats");
+  if (cached) return cached;
+
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -65,12 +69,15 @@ async function getLiveStats(): Promise<Record<string, string>> {
     }),
   ]);
 
-  return {
+  const stats = {
     total_messages: totalMessages.toLocaleString(),
     servers: guildCount.toString(),
     messages_today: messagesToday.toLocaleString(),
     active_users: activeUsersToday.length.toString(),
   };
+
+  await cacheSet("presence:stats", stats, 30);
+  return stats;
 }
 
 function applyTemplate(template: string, stats: Record<string, string>): string {

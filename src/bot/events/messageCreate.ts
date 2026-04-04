@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import { upsertUser } from "../../db/users.js";
 import { upsertGuild } from "../../db/guilds.js";
 import { insertMessage } from "../../db/messages.js";
-import { updateDailyStats } from "../../db/dailyStats.js";
+import { broadcastGuildUpdate } from "../../api/ws.js";
 
 export async function handleMessageCreate(message: Message) {
   // Ignore bots
@@ -19,8 +19,17 @@ export async function handleMessageCreate(message: Message) {
     );
     const guild = await upsertGuild(message.guild.id, message.guild.name);
 
-    await insertMessage(user.id, guild.id);
-    await updateDailyStats(guild.id);
+    const inserted = await insertMessage(user.id, guild.id, message.id);
+
+    // Broadcast to dashboard clients (skip if duplicate)
+    if (inserted) {
+      broadcastGuildUpdate(message.guild.id, {
+        type: "new_message",
+        guildId: message.guild.id,
+        username: message.author.username,
+        timestamp: new Date().toISOString(),
+      });
+    }
   } catch (error) {
     console.error("Failed to log message event:", error);
   }

@@ -14,6 +14,7 @@ interface DashboardLayoutProps {
   onDaysChange: (days: number) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  isAdmin?: boolean;
 }
 
 export function DashboardLayout({
@@ -26,10 +27,11 @@ export function DashboardLayout({
   onDaysChange,
   search,
   onSearchChange,
+  isAdmin = false,
 }: DashboardLayoutProps) {
   return (
     <div className="flex min-h-screen bg-bg-primary">
-      <Sidebar activePage={activePage} onNavigate={onNavigate} />
+      <Sidebar activePage={activePage} onNavigate={onNavigate} isAdmin={isAdmin} />
 
       <div className="ml-52 flex flex-1 flex-col">
         <Topbar

@@ -23,6 +23,9 @@ export const config = {
     url: requireEnv("SUPABASE_URL"),
     anonKey: requireEnv("SUPABASE_ANON_KEY"),
   },
+  redis: {
+    url: process.env.REDIS_URL ?? "",
+  },
   api: {
     port: parseInt(process.env.PORT ?? "3000", 10),
     jwtSecret: requireEnv("JWT_SECRET"),

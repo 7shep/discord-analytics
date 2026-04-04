@@ -26,6 +26,7 @@ model Guild {
 
 model Message {
   id        Int      @id @default(autoincrement())
+  discordId String   @unique
   userId    Int
   guildId   Int
   createdAt DateTime @default(now())

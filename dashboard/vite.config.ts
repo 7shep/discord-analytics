@@ -12,6 +12,10 @@ export default defineConfig({
       '/guild': 'http://localhost:3000',
       '/bot': 'http://localhost:3000',
       '/health': 'http://localhost:3000',
+      '/ws': {
+        target: 'http://localhost:3000',
+        ws: true,
+      },
     },
   },
 })

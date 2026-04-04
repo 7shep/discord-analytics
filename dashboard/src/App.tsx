@@ -1,13 +1,15 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   fetchOverview,
   fetchMessagesOverTime,
   fetchTopUsers,
   fetchMe,
   logout,
+  connectGuildWs,
 } from "./api";
 import type {
   GuildOverview,
+  GuildEvent,
   MessagesOverTime,
   TopUsers,
   UserInfo,
@@ -130,6 +132,39 @@ function App() {
       .finally(() => setLoading(false));
   }, [guildId, days, leaderboardLimit]);
 
+  // WebSocket: live updates when viewing a guild
+  const wsCleanup = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    // Clean up previous connection
+    wsCleanup.current?.();
+    wsCleanup.current = null;
+
+    if (!guildId) return;
+
+    wsCleanup.current = connectGuildWs(guildId, (event: GuildEvent) => {
+      if (event.type === "new_message") {
+        // Increment total messages and today's messages in the overview
+        setOverview((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            totalMessages: prev.totalMessages + 1,
+            today: {
+              ...prev.today,
+              messages: prev.today.messages + 1,
+            },
+          };
+        });
+      }
+    });
+
+    return () => {
+      wsCleanup.current?.();
+      wsCleanup.current = null;
+    };
+  }, [guildId]);
+
   const handleLogout = async () => {
     await logout();
     setUser(null);
@@ -208,6 +243,7 @@ function App() {
     onDaysChange: handleDaysChange,
     search,
     onSearchChange: setSearch,
+    isAdmin: user.isAdmin ?? false,
   };
 
   // Settings page
@@ -307,7 +343,7 @@ function App() {
               icon="users"
             />
             <StatCard
-              label="Msgs per User"
+              label="Messages per User"
               value={msgsPerUser}
               icon="ratio"
             />

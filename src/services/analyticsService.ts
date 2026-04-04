@@ -1,7 +1,14 @@
 import { prisma } from "../db/prisma.js";
+import { cacheGet, cacheSet } from "../db/redis.js";
+
+// Cache-friendly result types (avoid self-referencing ReturnType)
+type CachedResult = Record<string, unknown>;
 
 /** Get guild overview: total messages, active users today, growth metrics. */
 export async function getGuildOverview(guildDiscordId: string) {
+  const cacheKey = `overview:${guildDiscordId}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
   const guild = await prisma.guild.findUnique({
     where: { discordId: guildDiscordId },
   });
@@ -33,7 +40,7 @@ export async function getGuildOverview(guildDiscordId: string) {
       ? ((messagesToday - messagesYesterday) / messagesYesterday) * 100
       : 0;
 
-  return {
+  const result = {
     guildId: guild.discordId,
     guildName: guild.name,
     totalMessages,
@@ -46,6 +53,9 @@ export async function getGuildOverview(guildDiscordId: string) {
       messagesVsYesterday: Math.round(messageGrowth * 100) / 100,
     },
   };
+
+  await cacheSet(cacheKey, result, 60);
+  return result;
 }
 
 /** Get daily message counts for a guild over a time range. */
@@ -53,6 +63,10 @@ export async function getMessagesOverTime(
   guildDiscordId: string,
   days: number = 30
 ) {
+  const cacheKey = `messages-over-time:${guildDiscordId}:${days}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
+
   const guild = await prisma.guild.findUnique({
     where: { discordId: guildDiscordId },
   });
@@ -75,7 +89,7 @@ export async function getMessagesOverTime(
     },
   });
 
-  return {
+  const result = {
     guildId: guild.discordId,
     guildName: guild.name,
     period: { days, since: since.toISOString() },
@@ -85,6 +99,9 @@ export async function getMessagesOverTime(
       activeUsers: s.activeUsers,
     })),
   };
+
+  await cacheSet(cacheKey, result, 120);
+  return result;
 }
 
 /** Get top users by message count in a guild. */
@@ -92,6 +109,10 @@ export async function getTopUsers(
   guildDiscordId: string,
   limit: number = 10
 ) {
+  const cacheKey = `top-users:${guildDiscordId}:${limit}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
+
   const guild = await prisma.guild.findUnique({
     where: { discordId: guildDiscordId },
   });
@@ -127,7 +148,7 @@ export async function getTopUsers(
     }])
   );
 
-  return {
+  const result = {
     guildId: guild.discordId,
     guildName: guild.name,
     leaderboard: topUsers.map((u: { userId: number; _count: { id: number } }, i: number) => {
@@ -141,4 +162,7 @@ export async function getTopUsers(
       };
     }),
   };
+
+  await cacheSet(cacheKey, result, 120);
+  return result;
 }
