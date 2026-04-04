@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
       select: { discordId: true },
     });
 
-    const trackedSet = new Set(trackedGuilds.map((g) => g.discordId));
+    const trackedSet = new Set(trackedGuilds.map((g: { discordId: string }) => g.discordId));
 
     // Return admin guilds with a flag indicating if the bot is present
     const result = adminGuilds.map((g) => ({

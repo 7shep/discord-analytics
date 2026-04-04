@@ -79,7 +79,7 @@ export async function getMessagesOverTime(
     guildId: guild.discordId,
     guildName: guild.name,
     period: { days, since: since.toISOString() },
-    data: stats.map((s) => ({
+    data: stats.map((s: { date: Date; messageCount: number; activeUsers: number }) => ({
       date: s.date.toISOString().split("T")[0],
       messages: s.messageCount,
       activeUsers: s.activeUsers,
@@ -106,12 +106,19 @@ export async function getTopUsers(
   });
 
   // Fetch user details
-  const userIds = topUsers.map((u) => u.userId);
+  const userIds = topUsers.map((u: { userId: number }) => u.userId);
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
   });
-  const userMap = new Map(
-    users.map((u) => [u.id, {
+
+  interface UserDetail {
+    discordId: string;
+    username: string | null;
+    avatarUrl: string | null;
+  }
+
+  const userMap = new Map<number, UserDetail>(
+    users.map((u: { id: number; discordId: string; username: string | null; avatar: string | null }) => [u.id, {
       discordId: u.discordId,
       username: u.username,
       avatarUrl: u.avatar
@@ -123,7 +130,7 @@ export async function getTopUsers(
   return {
     guildId: guild.discordId,
     guildName: guild.name,
-    leaderboard: topUsers.map((u, i) => {
+    leaderboard: topUsers.map((u: { userId: number; _count: { id: number } }, i: number) => {
       const user = userMap.get(u.userId);
       return {
         rank: i + 1,
