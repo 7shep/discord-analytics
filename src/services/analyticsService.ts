@@ -166,3 +166,172 @@ export async function getTopUsers(
   await cacheSet(cacheKey, result, 120);
   return result;
 }
+
+/** Get voice channel overview for a guild: total time, sessions, top channel, today's stats. */
+export async function getVoiceOverview(guildDiscordId: string) {
+  const cacheKey = `voice-overview:${guildDiscordId}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
+
+  const guild = await prisma.guild.findUnique({
+    where: { discordId: guildDiscordId },
+  });
+  if (!guild) return null;
+
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const [totals, todayTotals, topChannelRaw] = await Promise.all([
+    prisma.voiceSession.aggregate({
+      where: { guildId: guild.id },
+      _sum: { duration: true },
+      _count: { id: true },
+    }),
+    prisma.voiceSession.aggregate({
+      where: { guildId: guild.id, joinedAt: { gte: today } },
+      _sum: { duration: true },
+      _count: { id: true },
+    }),
+    prisma.voiceSession.groupBy({
+      by: ["channelId", "channelName"],
+      where: { guildId: guild.id },
+      _sum: { duration: true },
+      orderBy: { _sum: { duration: "desc" } },
+      take: 1,
+    }),
+  ]);
+
+  const topChannel = topChannelRaw.length > 0
+    ? {
+        id: topChannelRaw[0].channelId,
+        name: topChannelRaw[0].channelName,
+        totalSeconds: topChannelRaw[0]._sum.duration ?? 0,
+      }
+    : null;
+
+  const result = {
+    guildId: guild.discordId,
+    guildName: guild.name,
+    totalVoiceSeconds: totals._sum.duration ?? 0,
+    totalSessions: totals._count.id,
+    topChannel,
+    today: {
+      voiceSeconds: todayTotals._sum.duration ?? 0,
+      sessions: todayTotals._count.id,
+    },
+  };
+
+  await cacheSet(cacheKey, result, 60);
+  return result;
+}
+
+/** Get daily voice time for a guild over a time range. */
+export async function getVoiceOverTime(
+  guildDiscordId: string,
+  days: number = 30
+) {
+  const cacheKey = `voice-over-time:${guildDiscordId}:${days}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
+
+  const guild = await prisma.guild.findUnique({
+    where: { discordId: guildDiscordId },
+  });
+  if (!guild) return null;
+
+  const since = new Date();
+  since.setUTCHours(0, 0, 0, 0);
+  since.setUTCDate(since.getUTCDate() - days);
+
+  const sessions = await prisma.voiceSession.findMany({
+    where: { guildId: guild.id, joinedAt: { gte: since } },
+    select: { joinedAt: true, duration: true },
+    orderBy: { joinedAt: "asc" },
+  });
+
+  // Group by date
+  const byDate = new Map<string, { totalSeconds: number; sessionCount: number }>();
+  for (const s of sessions) {
+    const date = s.joinedAt.toISOString().split("T")[0];
+    const entry = byDate.get(date) ?? { totalSeconds: 0, sessionCount: 0 };
+    entry.totalSeconds += s.duration;
+    entry.sessionCount += 1;
+    byDate.set(date, entry);
+  }
+
+  const result = {
+    guildId: guild.discordId,
+    guildName: guild.name,
+    period: { days, since: since.toISOString() },
+    data: Array.from(byDate.entries()).map(([date, stats]) => ({
+      date,
+      totalSeconds: stats.totalSeconds,
+      sessionCount: stats.sessionCount,
+    })),
+  };
+
+  await cacheSet(cacheKey, result, 120);
+  return result;
+}
+
+/** Get top users by voice time in a guild. */
+export async function getTopVoiceUsers(
+  guildDiscordId: string,
+  limit: number = 10
+) {
+  const cacheKey = `top-voice-users:${guildDiscordId}:${limit}`;
+  const cached = await cacheGet<CachedResult>(cacheKey);
+  if (cached) return cached;
+
+  const guild = await prisma.guild.findUnique({
+    where: { discordId: guildDiscordId },
+  });
+  if (!guild) return null;
+
+  const topVoice = await prisma.voiceSession.groupBy({
+    by: ["userId"],
+    where: { guildId: guild.id },
+    _sum: { duration: true },
+    orderBy: { _sum: { duration: "desc" } },
+    take: limit,
+  });
+
+  const userIds = topVoice.map((u: { userId: number }) => u.userId);
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+  });
+
+  interface VoiceUserDetail {
+    discordId: string;
+    username: string | null;
+    avatarUrl: string | null;
+  }
+
+  const userMap = new Map<number, VoiceUserDetail>(
+    users.map((u: { id: number; discordId: string; username: string | null; avatar: string | null }) => [u.id, {
+      discordId: u.discordId,
+      username: u.username,
+      avatarUrl: u.avatar
+        ? `https://cdn.discordapp.com/avatars/${u.discordId}/${u.avatar}.png`
+        : null,
+    }])
+  );
+
+  const result = {
+    guildId: guild.discordId,
+    guildName: guild.name,
+    leaderboard: topVoice.map((u: { userId: number; _sum: { duration: number | null } }, i: number) => {
+      const user = userMap.get(u.userId);
+      return {
+        rank: i + 1,
+        discordId: user?.discordId ?? "Unknown",
+        username: user?.username ?? "Unknown",
+        avatarUrl: user?.avatarUrl ?? null,
+        totalSeconds: u._sum.duration ?? 0,
+      };
+    }),
+  };
+
+  await cacheSet(cacheKey, result, 120);
+  return result;
+}

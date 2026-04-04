@@ -126,11 +126,49 @@ export async function savePresence(config: PresenceConfig): Promise<void> {
   if (!res.ok) throw new Error("Failed to save presence config");
 }
 
-export interface GuildEvent {
-  type: "new_message";
+export interface VoiceOverview {
   guildId: string;
-  username: string;
-  timestamp: string;
+  guildName: string;
+  totalVoiceSeconds: number;
+  totalSessions: number;
+  topChannel: { id: string; name: string; totalSeconds: number } | null;
+  today: { voiceSeconds: number; sessions: number };
+}
+
+export interface TopVoiceUsers {
+  guildId: string;
+  guildName: string;
+  leaderboard: Array<{
+    rank: number;
+    discordId: string;
+    username: string;
+    avatarUrl: string | null;
+    totalSeconds: number;
+  }>;
+}
+
+export type GuildEvent =
+  | { type: "new_message"; guildId: string; username: string; timestamp: string }
+  | { type: "voice_session_end"; guildId: string; username: string; channelName: string; duration: number; timestamp: string };
+
+export async function fetchVoiceOverview(
+  guildId: string
+): Promise<VoiceOverview> {
+  const res = await fetch(`${BASE}/guild/${guildId}/voice-overview`, opts);
+  if (!res.ok) throw new Error("Guild not found");
+  return res.json();
+}
+
+export async function fetchTopVoiceUsers(
+  guildId: string,
+  limit = 10
+): Promise<TopVoiceUsers> {
+  const res = await fetch(
+    `${BASE}/guild/${guildId}/top-voice-users?limit=${limit}`,
+    opts
+  );
+  if (!res.ok) throw new Error("Guild not found");
+  return res.json();
 }
 
 /** Connect to the guild WebSocket for live updates. Auto-reconnects on close. */

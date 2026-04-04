@@ -3,6 +3,8 @@ import {
   fetchOverview,
   fetchMessagesOverTime,
   fetchTopUsers,
+  fetchVoiceOverview,
+  fetchTopVoiceUsers,
   fetchMe,
   logout,
   connectGuildWs,
@@ -12,6 +14,8 @@ import type {
   GuildEvent,
   MessagesOverTime,
   TopUsers,
+  VoiceOverview,
+  TopVoiceUsers,
   UserInfo,
 } from "./api";
 import type { Page } from "./components/layout/Sidebar";
@@ -20,6 +24,7 @@ import { MessagesChart } from "./components/MessagesChart";
 import { DailyActiveUsers } from "./components/DailyActiveUsers";
 import { ActivityFeed } from "./components/ActivityFeed";
 import { Leaderboard } from "./components/Leaderboard";
+import { VoiceLeaderboard } from "./components/VoiceLeaderboard";
 import { ServerPicker } from "./components/ServerPicker";
 import { SettingsPage } from "./components/SettingsPage";
 import { PresencePage } from "./components/PresencePage";
@@ -48,6 +53,14 @@ function computeChange(
     : 0;
 
   return { messagesChange, usersChange };
+}
+
+function formatVoiceTime(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m`;
+  return `${seconds}s`;
 }
 
 function exportCsv(
@@ -102,6 +115,8 @@ function App() {
   const [overview, setOverview] = useState<GuildOverview | null>(null);
   const [timeSeries, setTimeSeries] = useState<MessagesOverTime | null>(null);
   const [topUsers, setTopUsers] = useState<TopUsers | null>(null);
+  const [voiceOverview, setVoiceOverview] = useState<VoiceOverview | null>(null);
+  const [topVoiceUsers, setTopVoiceUsers] = useState<TopVoiceUsers | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -123,11 +138,15 @@ function App() {
       fetchOverview(guildId),
       fetchMessagesOverTime(guildId, days),
       fetchTopUsers(guildId, leaderboardLimit),
+      fetchVoiceOverview(guildId),
+      fetchTopVoiceUsers(guildId, leaderboardLimit),
     ])
-      .then(([ov, ts, tu]) => {
+      .then(([ov, ts, tu, vo, tvu]) => {
         setOverview(ov);
         setTimeSeries(ts);
         setTopUsers(tu);
+        setVoiceOverview(vo);
+        setTopVoiceUsers(tvu);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -173,6 +192,8 @@ function App() {
     setOverview(null);
     setTimeSeries(null);
     setTopUsers(null);
+    setVoiceOverview(null);
+    setTopVoiceUsers(null);
   };
 
   const handleBack = useCallback(() => {
@@ -180,6 +201,8 @@ function App() {
     setOverview(null);
     setTimeSeries(null);
     setTopUsers(null);
+    setVoiceOverview(null);
+    setTopVoiceUsers(null);
     setError(null);
     setSearch("");
   }, []);
@@ -191,11 +214,12 @@ function App() {
   const handleNavigate = useCallback((p: Page) => {
     setPage(p);
     if (p === "dashboard") {
-      // Going back to dashboard clears guild selection to show server picker
       setGuildId(null);
       setOverview(null);
       setTimeSeries(null);
       setTopUsers(null);
+      setVoiceOverview(null);
+      setTopVoiceUsers(null);
       setError(null);
     }
     setSearch("");
@@ -356,6 +380,40 @@ function App() {
           {/* Leaderboard */}
           {topUsers && topUsers.leaderboard.length > 0 && (
             <Leaderboard data={topUsers.leaderboard} search={search} />
+          )}
+
+          {/* Voice Activity */}
+          {voiceOverview && (
+            <>
+              <div className="mt-8 mb-4">
+                <h2 className="text-lg font-bold text-text-primary">Voice Activity</h2>
+                <p className="text-sm text-text-muted">Voice channel usage and top participants.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+                <StatCard
+                  label="Total Voice Time"
+                  value={formatVoiceTime(voiceOverview.totalVoiceSeconds)}
+                  icon="messages"
+                />
+                <StatCard
+                  label="Voice Sessions"
+                  value={voiceOverview.totalSessions}
+                  icon="users"
+                />
+                {voiceOverview.topChannel && (
+                  <StatCard
+                    label="Most Used Channel"
+                    value={`#${voiceOverview.topChannel.name}`}
+                    icon="growth"
+                  />
+                )}
+              </div>
+
+              {topVoiceUsers && topVoiceUsers.leaderboard.length > 0 && (
+                <VoiceLeaderboard data={topVoiceUsers.leaderboard} search={search} />
+              )}
+            </>
           )}
         </>
       )}

@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  discordId String    @unique
-  username  String?
-  avatar    String?
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  id             Int             @id @default(autoincrement())
+  discordId      String          @unique
+  username       String?
+  avatar         String?
+  createdAt      DateTime        @default(now())
+  messages       Message[]
+  voiceSessions  VoiceSession[]
 }
 
 model Guild {
-  id        Int         @id @default(autoincrement())
-  discordId String      @unique
-  name      String
-  messages  Message[]
-  dailyStats DailyStat[]
+  id             Int             @id @default(autoincrement())
+  discordId      String          @unique
+  name           String
+  messages       Message[]
+  dailyStats     DailyStat[]
+  voiceSessions  VoiceSession[]
 }
 
 model Message {
@@ -48,4 +50,21 @@ model DailyStat {
 
   @@unique([guildId, date])
   @@index([date])
+}
+
+model VoiceSession {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  guildId     Int
+  channelId   String
+  channelName String
+  joinedAt    DateTime
+  leftAt      DateTime
+  duration    Int
+  user        User     @relation(fields: [userId], references: [id])
+  guild       Guild    @relation(fields: [guildId], references: [id])
+
+  @@index([guildId])
+  @@index([userId])
+  @@index([joinedAt])
 }

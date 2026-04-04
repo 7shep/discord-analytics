@@ -3,6 +3,9 @@ import {
   getGuildOverview,
   getMessagesOverTime,
   getTopUsers,
+  getVoiceOverview,
+  getVoiceOverTime,
+  getTopVoiceUsers,
 } from "../../services/analyticsService.js";
 
 const router = Router();
@@ -32,6 +35,38 @@ router.get("/:id/top-users", async (req, res) => {
   const id = String(req.params.id);
   const limit = parseInt(String(req.query.limit)) || 10;
   const result = await getTopUsers(id, limit);
+  if (!result) {
+    res.status(404).json({ error: "Guild not found" });
+    return;
+  }
+  res.json(result);
+});
+
+router.get("/:id/voice-overview", async (req, res) => {
+  const id = String(req.params.id);
+  const result = await getVoiceOverview(id);
+  if (!result) {
+    res.status(404).json({ error: "Guild not found" });
+    return;
+  }
+  res.json(result);
+});
+
+router.get("/:id/voice-over-time", async (req, res) => {
+  const id = String(req.params.id);
+  const days = parseInt(String(req.query.days)) || 30;
+  const result = await getVoiceOverTime(id, days);
+  if (!result) {
+    res.status(404).json({ error: "Guild not found" });
+    return;
+  }
+  res.json(result);
+});
+
+router.get("/:id/top-voice-users", async (req, res) => {
+  const id = String(req.params.id);
+  const limit = parseInt(String(req.query.limit)) || 10;
+  const result = await getTopVoiceUsers(id, limit);
   if (!result) {
     res.status(404).json({ error: "Guild not found" });
     return;

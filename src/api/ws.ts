@@ -4,12 +4,9 @@ import type { Server } from "http";
 // Map of guildDiscordId → Set of connected WebSocket clients
 const guildClients = new Map<string, Set<WebSocket>>();
 
-export interface GuildEvent {
-  type: "new_message";
-  guildId: string;
-  username: string;
-  timestamp: string;
-}
+export type GuildEvent =
+  | { type: "new_message"; guildId: string; username: string; timestamp: string }
+  | { type: "voice_session_end"; guildId: string; username: string; channelName: string; duration: number; timestamp: string };
 
 export function setupWebSocket(server: Server) {
   const wss = new WebSocketServer({ server, path: "/ws" });
