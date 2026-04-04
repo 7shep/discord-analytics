@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "";
-const TITLE = "Welcome to Andromeda";
+const TITLE = "Introducing Andromeda";
 const TYPE_SPEED = 80;
 const DELETE_SPEED = 50;
 const PAUSE_FULL = 2500;
