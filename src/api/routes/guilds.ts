@@ -6,12 +6,13 @@ import { prisma } from "../../db/prisma.js";
 const router = Router();
 
 const DISCORD_API = "https://discord.com/api/v10";
-const ADMINISTRATOR = 0x8;
+const ADMINISTRATOR = BigInt(0x8);
 
 interface DiscordGuild {
   id: string;
   name: string;
   icon: string | null;
+  owner: boolean;
   permissions: string;
 }
 
@@ -35,21 +36,32 @@ router.get("/", async (req, res) => {
   }
 
   try {
-    // Fetch user's guilds from Discord
-    const guildsRes = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+    // Fetch user's guilds from Discord (with rate limit retry)
+    let guildsRes = await fetch(`${DISCORD_API}/users/@me/guilds`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
+    if (guildsRes.status === 429) {
+      const retryData = (await guildsRes.json()) as { retry_after: number };
+      const waitMs = Math.ceil(retryData.retry_after * 1000);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      guildsRes = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    }
+
     if (!guildsRes.ok) {
+      const errorBody = await guildsRes.text();
+      console.error("Discord guilds API error:", guildsRes.status, errorBody);
       res.status(502).json({ error: "Failed to fetch guilds from Discord" });
       return;
     }
 
     const userGuilds = (await guildsRes.json()) as DiscordGuild[];
 
-    // Filter to guilds where user has Administrator permission
+    // Filter to guilds where user is owner or has Administrator permission
     const adminGuilds = userGuilds.filter(
-      (g) => (parseInt(g.permissions) & ADMINISTRATOR) === ADMINISTRATOR
+      (g) => g.owner || (BigInt(g.permissions) & ADMINISTRATOR) === ADMINISTRATOR
     );
 
     // Get guild IDs the bot is tracking

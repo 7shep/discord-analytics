@@ -4,9 +4,10 @@ import type { GuildListItem } from "../api";
 
 interface Props {
   onSelect: (guildId: string) => void;
+  search?: string;
 }
 
-export function ServerPicker({ onSelect }: Props) {
+export function ServerPicker({ onSelect, search = "" }: Props) {
   const [guilds, setGuilds] = useState<GuildListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +22,12 @@ export function ServerPicker({ onSelect }: Props) {
   if (loading) return <p className="status">Loading your servers...</p>;
   if (error) return <p className="status error">{error}</p>;
 
-  const tracked = guilds.filter((g) => g.tracked);
-  const untracked = guilds.filter((g) => !g.tracked);
+  const query = search.toLowerCase();
+  const filtered = query
+    ? guilds.filter((g) => g.name.toLowerCase().includes(query))
+    : guilds;
+  const tracked = filtered.filter((g) => g.tracked);
+  const untracked = filtered.filter((g) => !g.tracked);
 
   return (
     <div className="server-picker">
