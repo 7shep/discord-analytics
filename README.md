@@ -1,4 +1,4 @@
-# Discord Analytics
+# Andromeda
 
 A full-stack analytics platform that tracks Discord server activity in real time and visualizes it through an interactive dashboard. Ingests events via a Discord bot, stores raw and aggregated data in PostgreSQL, exposes a REST API, and renders insights with a React frontend.
 
@@ -125,73 +125,6 @@ createdAt                                    activeUsers
 
 - **Raw events** (`Message`) are stored for every message, enabling ad-hoc queries and historical analysis.
 - **Aggregated stats** (`DailyStat`) are precomputed by a background worker for fast dashboard rendering.
-
-## Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) v18+
-- A [Supabase](https://supabase.com/) project (free tier works)
-- A [Discord bot](https://discord.com/developers/applications) with the following intents enabled:
-  - Server Members
-  - Message Content
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/7shep/discord-analytics.git
-cd discord-analytics
-npm install
-```
-
-### 2. Configure environment
-
-Copy `.env.example` to `.env` and fill in your credentials:
-
-```env
-DISCORD_TOKEN=your_bot_token
-DISCORD_CLIENT_ID=your_client_id
-DATABASE_URL=postgresql://...your_supabase_connection_string
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your_anon_key
-PORT=3000
-```
-
-### 3. Set up the database
-
-Run the SQL schema in your Supabase SQL editor to create tables and enable RLS. Then generate the Prisma client:
-
-```bash
-npx prisma generate
-```
-
-### 4. Start the bot + API
-
-```bash
-npm run dev:bot
-```
-
-This starts the Discord bot, REST API (port 3000), and aggregation worker together.
-
-### 5. Start the dashboard
-
-```bash
-cd dashboard
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173`, enter a guild Discord ID, and explore.
-
-## Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev:bot` | Run bot with hot reload |
-| `npm run bot` | Run bot once |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npx prisma generate` | Regenerate Prisma client |
-| `npx tsc --noEmit` | Type-check without emitting |
 
 ## License
 
