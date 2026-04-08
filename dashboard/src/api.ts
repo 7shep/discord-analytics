@@ -155,7 +155,10 @@ export async function fetchVoiceOverview(
   guildId: string
 ): Promise<VoiceOverview> {
   const res = await fetch(`${BASE}/guild/${guildId}/voice-overview`, opts);
-  if (!res.ok) throw new Error("Guild not found");
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Voice overview request failed (${res.status})`);
+  }
   return res.json();
 }
 
@@ -167,7 +170,10 @@ export async function fetchTopVoiceUsers(
     `${BASE}/guild/${guildId}/top-voice-users?limit=${limit}`,
     opts
   );
-  if (!res.ok) throw new Error("Guild not found");
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `Top voice users request failed (${res.status})`);
+  }
   return res.json();
 }
 

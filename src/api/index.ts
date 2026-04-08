@@ -10,6 +10,9 @@ import { setupWebSocket } from "./ws.js";
 
 const app = express();
 
+// Trust the first proxy hop (required on Railway / behind reverse proxies)
+app.set("trust proxy", 1);
+
 app.use(express.json());
 app.use(cookieParser());
 
