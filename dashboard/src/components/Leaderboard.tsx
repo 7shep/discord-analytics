@@ -6,15 +6,19 @@ interface Props {
     avatarUrl: string | null;
     messageCount: number;
   }>;
+  search?: string;
 }
 
 
-export function Leaderboard({ data }: Props) {
+export function Leaderboard({ data, search = "" }: Props) {
+  const filtered = search
+    ? data.filter((u) => u.username.toLowerCase().includes(search.toLowerCase()))
+    : data;
   return (
     <div className="chart-container">
       <h3>Top Users</h3>
       <div className="leaderboard">
-        {data.map((user) => (
+        {filtered.map((user) => (
           <div key={user.discordId} className="leaderboard-row">
             <span className="leaderboard-rank">#{user.rank}</span>
             <img
