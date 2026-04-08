@@ -25,9 +25,6 @@ export function SettingsPage({ user, onLogout }: Props) {
   return (
     <div className="max-w-2xl">
       <h1 className="text-xl font-bold text-text-primary mb-1">Settings</h1>
-      <p className="text-sm text-text-muted mb-8">
-        Manage your account and dashboard preferences.
-      </p>
 
       {/* Account section */}
       <section className="rounded-xl border border-border bg-bg-card p-5 mb-6">

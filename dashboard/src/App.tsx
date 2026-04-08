@@ -330,9 +330,6 @@ function App() {
                   Dashboard Overview
                 </h1>
               </div>
-              <p className="text-sm text-text-muted ml-8">
-                Monitor your Discord server activity and growth metrics.
-              </p>
             </div>
             <button
               onClick={() => exportCsv(overview, timeSeries, topUsers)}
