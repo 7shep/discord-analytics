@@ -22,5 +22,6 @@ plan.md
 Thumbs.db
 Desktop.ini
 .DS_Store
+.vscode/
 
 /src/generated/prisma
