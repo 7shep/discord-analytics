@@ -3,75 +3,120 @@ export type Page = "dashboard" | "presence" | "settings";
 interface SidebarProps {
   activePage: Page;
   onNavigate: (page: Page) => void;
+  guildId?: string | null;
+  onServerList?: () => void;
+  onLogout?: () => void;
   isAdmin?: boolean;
 }
 
-export function Sidebar({ activePage, onNavigate, isAdmin = false }: SidebarProps) {
+export function Sidebar({
+  activePage,
+  onNavigate,
+  guildId,
+  onServerList,
+  onLogout,
+}: SidebarProps) {
+  const isServerListActive = activePage === "dashboard" && !guildId;
+  const isAnalyticsActive = activePage === "dashboard" && !!guildId;
+  const isSettingsActive = activePage === "settings";
+
+  const navItem = (
+    active: boolean,
+    icon: string,
+    label: string,
+    onClick: () => void,
+    iconFilled = false,
+  ) => (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 py-3 text-left transition-all ${
+        active
+          ? "bg-[#201f1f] text-[#D4FF33] rounded-r-lg border-l-4 border-[#D4FF33] pl-5 pr-6"
+          : "text-[#adaaaa] hover:bg-[#262626] hover:text-[#D4FF33] pl-6 pr-6 border-l-4 border-transparent"
+      }`}
+    >
+      <span
+        className="material-symbols-outlined text-[20px]"
+        style={iconFilled ? { fontVariationSettings: "'FILL' 1" } : undefined}
+      >
+        {icon}
+      </span>
+      <span className={`font-label text-sm ${active ? "font-bold" : "font-medium"}`}>
+        {label}
+      </span>
+    </button>
+  );
+
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-52 flex-col bg-bg-secondary border-r border-border px-3 py-5">
-      {/* Main Menu */}
-      <div className="mb-6">
-        <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-          Main Menu
-        </p>
-        <nav className="flex flex-col gap-0.5">
-          <button
-            onClick={() => onNavigate("dashboard")}
-            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              activePage === "dashboard"
-                ? "bg-accent-green/10 text-accent-green"
-                : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
-            }`}
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col bg-[#1a1919] py-6 shadow-xl lg:flex">
+      {/* Brand */}
+      <div className="px-6 mb-8 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#D4FF33] flex items-center justify-center flex-shrink-0">
+          <span
+            className="material-symbols-outlined text-black text-[20px]"
+            style={{ fontVariationSettings: "'FILL' 1" }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="1" />
-              <rect x="14" y="3" width="7" height="7" rx="1" />
-              <rect x="3" y="14" width="7" height="7" rx="1" />
-              <rect x="14" y="14" width="7" height="7" rx="1" />
-            </svg>
-            Dashboard
-          </button>
-        </nav>
+            bolt
+          </span>
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-[#D4FF33] leading-none" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Andromeda
+          </h2>
+          <p className="text-[10px] text-[#adaaaa] uppercase tracking-widest mt-1">
+            V2.4 Active
+          </p>
+        </div>
       </div>
 
-      {/* Settings */}
-      <div>
-        <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-          Settings
-        </p>
-        <nav className="flex flex-col gap-0.5">
-          {isAdmin && (
+      {/* Nav */}
+      <nav className="flex-1 flex flex-col gap-1">
+        {navItem(
+          isServerListActive,
+          "dns",
+          "Server List",
+          () => { onServerList ? onServerList() : onNavigate("dashboard"); },
+        )}
+        {navItem(
+          isAnalyticsActive,
+          "insights",
+          "Analytics",
+          () => onNavigate("dashboard"),
+          isAnalyticsActive,
+        )}
+        {navItem(
+          isSettingsActive,
+          "settings",
+          "Settings",
+          () => onNavigate("settings"),
+        )}
+      </nav>
+
+      {/* Bottom */}
+      <div className="px-6 mt-auto flex flex-col gap-4">
+        <a
+          href="https://discord.com/oauth2/authorize?client_id=1422053050909986916&permissions=8&integration_type=0&scope=bot+applications.commands"
+          target="_blank"
+          rel="noreferrer"
+          className="block w-full bg-[#D4FF33] text-black px-4 py-3 rounded-xl font-bold text-sm text-center hover:opacity-90 active:scale-95 transition-all"
+        >
+          Invite Bot
+        </a>
+        <div className="flex flex-col gap-1">
+          <button className="flex items-center gap-3 text-[#adaaaa] py-2 hover:text-white transition-colors text-left">
+            <span className="material-symbols-outlined text-[18px]">help</span>
+            <span className="text-sm">Help</span>
+          </button>
+          {onLogout && (
             <button
-              onClick={() => onNavigate("presence")}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                activePage === "presence"
-                  ? "bg-accent-green/10 text-accent-green"
-                  : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
-              }`}
+              onClick={onLogout}
+              className="flex items-center gap-3 text-[#ff7351]/80 py-2 hover:text-[#ff7351] transition-colors text-left"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                <path d="M19 8h2M3 8h2M12 3V1" />
-              </svg>
-              Bot Presence
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              <span className="text-sm">Logout</span>
             </button>
           )}
-          <button
-            onClick={() => onNavigate("settings")}
-            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              activePage === "settings"
-                ? "bg-accent-green/10 text-accent-green"
-                : "text-text-secondary hover:bg-bg-card hover:text-text-primary"
-            }`}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            Settings
-          </button>
-        </nav>
+        </div>
       </div>
     </aside>
   );

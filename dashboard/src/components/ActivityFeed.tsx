@@ -1,37 +1,11 @@
 import type { GuildOverview } from "../api";
 
 interface FeedItem {
-  icon: "spike" | "user" | "milestone" | "drop";
-  color: string;
+  icon: string;
   title: string;
   description: string;
+  colorClass: string;
 }
-
-const iconSvgs: Record<string, React.ReactNode> = {
-  spike: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-    </svg>
-  ),
-  user: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  ),
-  milestone: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  ),
-  drop: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-      <polyline points="17 18 23 18 23 12" />
-    </svg>
-  ),
-};
 
 interface Props {
   overview: GuildOverview | null;
@@ -45,15 +19,15 @@ function generateFeed(overview: GuildOverview | null, timeSeries: Props["timeSer
     const growth = overview.growth.messagesVsYesterday;
     if (growth > 20) {
       items.push({
-        icon: "spike",
-        color: "bg-accent-blue/15 text-accent-blue",
+        icon: "trending_up",
+        colorClass: "bg-[#D4FF33]/15 text-[#D4FF33]",
         title: "Spike in messages",
         description: `Activity is up ${growth}% compared to yesterday.`,
       });
     } else if (growth < -20) {
       items.push({
-        icon: "drop",
-        color: "bg-accent-red/15 text-accent-red",
+        icon: "trending_down",
+        colorClass: "bg-[#ff7351]/15 text-[#ff7351]",
         title: "Activity drop",
         description: `Messages are down ${Math.abs(growth)}% vs yesterday.`,
       });
@@ -61,8 +35,8 @@ function generateFeed(overview: GuildOverview | null, timeSeries: Props["timeSer
 
     if (overview.today.activeUsers > 0) {
       items.push({
-        icon: "user",
-        color: "bg-accent-purple/15 text-accent-purple",
+        icon: "person",
+        colorClass: "bg-[#D4FF33]/10 text-[#D4FF33]",
         title: `${overview.today.activeUsers} active today`,
         description: `${overview.today.messages} messages sent so far today.`,
       });
@@ -72,8 +46,8 @@ function generateFeed(overview: GuildOverview | null, timeSeries: Props["timeSer
     for (const m of milestones) {
       if (overview.totalMessages >= m) {
         items.push({
-          icon: "milestone",
-          color: "bg-accent-green/15 text-accent-green",
+          icon: "check_circle",
+          colorClass: "bg-[#D4FF33]/15 text-[#D4FF33]",
           title: "Milestone reached",
           description: `Server crossed ${m.toLocaleString()} total messages.`,
         });
@@ -88,8 +62,8 @@ function generateFeed(overview: GuildOverview | null, timeSeries: Props["timeSer
     const peak = recent.reduce((max, d) => (d.messages > max.messages ? d : max), recent[0]);
     if (peak.messages > avg * 1.3) {
       items.push({
-        icon: "spike",
-        color: "bg-accent-orange/15 text-accent-orange",
+        icon: "campaign",
+        colorClass: "bg-[#D4FF33]/10 text-[#D4FF33]",
         title: "Peak activity day",
         description: `${peak.date} had ${peak.messages.toLocaleString()} messages — ${Math.round(((peak.messages - avg) / avg) * 100)}% above average.`,
       });
@@ -98,8 +72,8 @@ function generateFeed(overview: GuildOverview | null, timeSeries: Props["timeSer
 
   if (items.length === 0) {
     items.push({
-      icon: "user",
-      color: "bg-accent-blue/15 text-accent-blue",
+      icon: "person",
+      colorClass: "bg-[#D4FF33]/10 text-[#D4FF33]",
       title: "All quiet",
       description: "No notable activity events to report.",
     });
@@ -112,20 +86,20 @@ export function ActivityFeed({ overview, timeSeries }: Props) {
   const items = generateFeed(overview, timeSeries);
 
   return (
-    <div className="rounded-xl border border-border bg-bg-card p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-text-primary">Activity Feed</h3>
-      </div>
-
-      <div className="flex flex-col gap-3">
+    <div className="bg-[#1a1919] rounded-2xl p-6 border border-[#484847]/10 flex-1 min-h-[200px]">
+      <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+        <span className="w-1.5 h-1.5 rounded-full bg-[#D4FF33]" />
+        Activity Feed
+      </h4>
+      <div className="space-y-4 max-h-[180px] overflow-y-auto pr-2">
         {items.map((item, i) => (
-          <div key={i} className="flex gap-3">
-            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.color}`}>
-              {iconSvgs[item.icon]}
+          <div key={i} className="flex gap-3 text-xs">
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${item.colorClass}`}>
+              <span className="material-symbols-outlined text-[14px]">{item.icon}</span>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary">{item.title}</p>
-              <p className="text-xs text-text-muted leading-relaxed">{item.description}</p>
+            <div>
+              <p className="text-white font-medium">{item.title}</p>
+              <p className="text-[#adaaaa]">{item.description}</p>
             </div>
           </div>
         ))}

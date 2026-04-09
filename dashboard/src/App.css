@@ -166,8 +166,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1.25rem 1rem;
-  background: #0c1527;
-  border: 1px solid #151f35;
+  background: #1a1919;
+  border: 1px solid #484847;
   border-radius: 12px;
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s;
@@ -177,7 +177,7 @@
 }
 
 .server-card:hover {
-  border-color: #3b82f6;
+  border-color: #D4FF33;
   transform: translateY(-2px);
 }
 
@@ -187,7 +187,7 @@
 }
 
 .server-card.disabled:hover {
-  border-color: #151f35;
+  border-color: #484847;
   transform: none;
 }
 
@@ -201,7 +201,7 @@
 .server-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #e8ecf4;
+  color: #ffffff;
   text-align: center;
   word-break: break-word;
 }
@@ -216,20 +216,20 @@
 }
 
 .server-badge.tracked {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  background: rgba(212, 255, 51, 0.15);
+  color: #D4FF33;
 }
 
 .server-badge.untracked {
   background: rgba(255, 255, 255, 0.05);
-  color: #3d4f6f;
+  color: #767575;
 }
 
 .status {
   text-align: center;
-  color: #7a8ba8;
+  color: #adaaaa;
 }
 
 .status.error {
-  color: #ef4444;
+  color: #ff7351;
 }

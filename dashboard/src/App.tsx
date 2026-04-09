@@ -249,6 +249,8 @@ function App() {
     onLogout: handleLogout,
     activePage: page,
     onNavigate: handleNavigate,
+    onServerList: handleBack,
+    guildId,
     days,
     onDaysChange: handleDaysChange,
     search,
@@ -314,121 +316,112 @@ function App() {
       {overview && (
         <>
           {/* Page header */}
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <button
-                  onClick={handleBack}
-                  className="text-text-muted hover:text-text-secondary transition-colors"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5" />
-                    <path d="M12 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h1 className="text-xl font-bold text-text-primary">
-                  Dashboard Overview
-                </h1>
-              </div>
-            </div>
-            <button
-              onClick={() => exportCsv(overview, timeSeries, topUsers)}
-              className="flex items-center gap-2 rounded-lg border border-border bg-bg-card px-4 py-2 text-sm font-medium text-text-primary hover:bg-bg-card-hover transition-colors"
+          <div className="max-w-7xl mx-auto px-6">
+            <h1
+              className="text-4xl font-black tracking-tighter mb-8 text-white"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Export Report
-            </button>
-          </div>
+              {overview.guildName}
+            </h1>
 
-          {/* Metric cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-            <StatCard
-              label="Total Messages"
-              value={overview.totalMessages}
-              change={messagesChange}
-              changeLabel="vs prior period"
-              icon="messages"
-            />
-            <StatCard
-              label="Active Users"
-              value={overview.totalMembers}
-              change={usersChange}
-              changeLabel="vs prior period"
-              icon="users"
-            />
-            <StatCard
-              label="Messages per User"
-              value={msgsPerUser}
-              icon="ratio"
-            />
-            <StatCard
-              label="Growth %"
-              value={`${overview.growth.messagesVsYesterday > 0 ? "+" : ""}${overview.growth.messagesVsYesterday}%`}
-              change={overview.growth.messagesVsYesterday}
-              changeLabel="vs yesterday"
-              icon="growth"
-            />
-          </div>
-
-          {/* Charts row */}
-          {tsData.length > 0 && (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
-              <div className="xl:col-span-2">
-                <MessagesChart
-                  data={tsData}
-                  days={days}
-                  onDaysChange={handleDaysChange}
-                />
-              </div>
-              <div className="flex flex-col gap-4">
-                <DailyActiveUsers data={tsData} />
-                <ActivityFeed overview={overview} timeSeries={tsData} />
-              </div>
+            {/* Metric cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+              <StatCard
+                label="Total Messages"
+                value={overview.totalMessages}
+                change={messagesChange}
+              />
+              <StatCard
+                label="Active Users"
+                value={overview.totalMembers}
+                change={usersChange}
+              />
+              <StatCard
+                label="Messages per User"
+                value={msgsPerUser}
+              />
+              <StatCard
+                label="Growth %"
+                value={`${overview.growth.messagesVsYesterday > 0 ? "+" : ""}${overview.growth.messagesVsYesterday}%`}
+                change={overview.growth.messagesVsYesterday}
+              />
             </div>
-          )}
 
-          {/* Leaderboard */}
-          {topUsers && topUsers.leaderboard.length > 0 && (
-            <Leaderboard data={topUsers.leaderboard} search={search} />
-          )}
-
-          {/* Voice Activity */}
-          {voiceOverview && (
-            <>
-              <div className="mt-8 mb-4">
-                <h2 className="text-lg font-bold text-text-primary">Voice Activity</h2>
-                <p className="text-sm text-text-muted">Voice channel usage and top participants.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-                <StatCard
-                  label="Total Voice Time"
-                  value={formatVoiceTime(voiceOverview.totalVoiceSeconds)}
-                  icon="messages"
-                />
-                <StatCard
-                  label="Voice Sessions"
-                  value={voiceOverview.totalSessions}
-                  icon="users"
-                />
-                {voiceOverview.topChannel && (
-                  <StatCard
-                    label="Most Used Channel"
-                    value={`#${voiceOverview.topChannel.name}`}
-                    icon="growth"
+            {/* Charts row */}
+            {tsData.length > 0 && (
+              <div className="grid grid-cols-12 gap-6 mb-8">
+                <div className="col-span-12 xl:col-span-8">
+                  <MessagesChart
+                    data={tsData}
+                    days={days}
+                    onDaysChange={handleDaysChange}
                   />
+                </div>
+                <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
+                  <DailyActiveUsers data={tsData} />
+                  <ActivityFeed overview={overview} timeSeries={tsData} />
+                </div>
+              </div>
+            )}
+
+            {/* Leaderboard */}
+            {topUsers && topUsers.leaderboard.length > 0 && (
+              <div className="mb-12">
+                <Leaderboard data={topUsers.leaderboard} search={search} />
+              </div>
+            )}
+
+            {/* Voice Activity */}
+            {voiceOverview && (
+              <div className="mb-12">
+                <div className="mb-8">
+                  <h3
+                    className="text-3xl font-black text-white tracking-tighter"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    Voice Activity
+                  </h3>
+                  <p className="text-[#adaaaa] text-sm mt-1">Real-time voice telemetry and audio engagement statistics.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-[#1a1919] p-6 rounded-2xl border-l-4 border-[#D4FF33] shadow-lg">
+                    <p className="text-[10px] text-[#adaaaa] uppercase tracking-widest mb-1">Total Voice Time</p>
+                    <h4 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {formatVoiceTime(voiceOverview.totalVoiceSeconds)}
+                    </h4>
+                  </div>
+                  <div className="bg-[#1a1919] p-6 rounded-2xl border-l-4 border-[#D4FF33]/50 shadow-lg">
+                    <p className="text-[10px] text-[#adaaaa] uppercase tracking-widest mb-1">Voice Sessions</p>
+                    <h4 className="text-3xl font-black text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {voiceOverview.totalSessions}
+                    </h4>
+                  </div>
+                  {voiceOverview.topChannel && (
+                    <div className="bg-[#1a1919] p-6 rounded-2xl border-l-4 border-[#D4FF33]/30 shadow-lg">
+                      <p className="text-[10px] text-[#adaaaa] uppercase tracking-widest mb-1">Most Used Channel</p>
+                      <h4 className="text-2xl font-black text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                        #{voiceOverview.topChannel.name}
+                      </h4>
+                    </div>
+                  )}
+                </div>
+
+                {topVoiceUsers && topVoiceUsers.leaderboard.length > 0 && (
+                  <VoiceLeaderboard data={topVoiceUsers.leaderboard} search={search} />
                 )}
               </div>
+            )}
+          </div>
 
-              {topVoiceUsers && topVoiceUsers.leaderboard.length > 0 && (
-                <VoiceLeaderboard data={topVoiceUsers.leaderboard} search={search} />
-              )}
-            </>
-          )}
+          {/* FAB */}
+          <button
+            onClick={() => exportCsv(overview, timeSeries, topUsers)}
+            className="fixed bottom-8 right-8 w-14 h-14 bg-[#D4FF33] text-black rounded-2xl shadow-[0_10px_30px_rgba(212,255,51,0.3)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50"
+            title="Export Report"
+          >
+            <span className="material-symbols-outlined text-[28px]">download</span>
+          </button>
         </>
       )}
       </Suspense>

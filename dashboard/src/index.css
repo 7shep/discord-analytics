@@ -1,28 +1,66 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --color-bg-primary: #060b18;
-  --color-bg-secondary: #0a1020;
-  --color-bg-card: #0c1527;
-  --color-bg-card-hover: #111c35;
-  --color-bg-input: #0a1228;
-  --color-border: #151f35;
-  --color-border-light: #1a2740;
-  --color-text-primary: #e8ecf4;
-  --color-text-secondary: #7a8ba8;
-  --color-text-muted: #3d4f6f;
-  --color-accent-green: #22c55e;
-  --color-accent-red: #ef4444;
-  --color-accent-orange: #f59e0b;
-  --color-accent-purple: #a78bfa;
-  --color-accent-blue: #3b82f6;
-  --color-accent-cyan: #06b6d4;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-headline: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  /* New palette */
+  --color-bg-primary: #0e0e0e;
+  --color-bg-secondary: #1a1919;
+  --color-bg-card: #1a1919;
+  --color-bg-card-hover: #262626;
+  --color-bg-input: #131313;
+  --color-border: #484847;
+  --color-border-light: #484847;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #adaaaa;
+  --color-text-muted: #767575;
+  --color-accent-green: #D4FF33;
+  --color-accent-red: #ff7351;
+  --color-accent-blue: #D4FF33;
+  --color-accent-orange: #D4FF33;
+  --color-accent-purple: #D4FF33;
+  --color-accent-cyan: #D4FF33;
+
+  /* New design tokens */
+  --color-surface-container: #1a1919;
+  --color-surface-container-high: #201f1f;
+  --color-surface-container-highest: #262626;
+  --color-on-primary: #000000;
+  --color-error: #ff7351;
+  --color-on-surface-variant: #adaaaa;
+  --color-outline-variant: #484847;
 }
 
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.chart-glow {
+  filter: drop-shadow(0 0 8px rgba(212, 255, 51, 0.3));
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #484847; border-radius: 10px; }

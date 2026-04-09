@@ -20,12 +20,14 @@ export function Leaderboard({ data, search: globalSearch = "" }: Props) {
     : data;
 
   return (
-    <div className="rounded-xl border border-border bg-bg-card p-5">
+    <div className="bg-[#1a1919] rounded-2xl overflow-hidden border border-[#484847]/10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-text-primary">Top Users</h3>
+      <div className="flex items-center justify-between px-6 py-5 border-b border-[#484847]/10">
+        <h3 className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+          User Leaderboard
+        </h3>
         <div className="relative">
-          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#767575]" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -34,52 +36,64 @@ export function Leaderboard({ data, search: globalSearch = "" }: Props) {
             placeholder="Search user..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="h-7 w-40 rounded-md border border-border bg-bg-primary pl-8 pr-2 text-xs text-text-primary placeholder-text-muted outline-none focus:border-accent-blue/50"
+            className="h-7 w-40 rounded-md border border-[#484847]/30 bg-[#0e0e0e] pl-8 pr-2 text-xs text-white placeholder-[#767575] outline-none focus:border-[#D4FF33]/50"
           />
         </div>
       </div>
 
       {/* Table header */}
-      <div className="grid grid-cols-[2rem_1fr_100px] gap-3 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-        <span>#</span>
-        <span>User</span>
-        <span className="text-right">Messages</span>
+      <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-[#201f1f] text-[10px] font-semibold uppercase tracking-widest text-[#adaaaa]">
+        <div className="col-span-1">Rank</div>
+        <div className="col-span-7 md:col-span-5">User</div>
+        <div className="col-span-4 md:col-span-3 text-right">Messages</div>
+        <div className="hidden md:block col-span-3 text-right">Last Active</div>
       </div>
 
       {/* Rows */}
-      <div className="flex flex-col gap-0.5">
+      <div className="divide-y divide-[#484847]/10">
         {filtered.map((user) => (
           <div
             key={user.discordId}
-            className="grid grid-cols-[2rem_1fr_100px] gap-3 items-center rounded-lg px-3 py-2.5 hover:bg-bg-card-hover transition-colors"
+            className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-[#201f1f]/50 transition-colors"
           >
-            <span className="text-sm font-semibold text-accent-blue">
-              {user.rank}
-            </span>
-
-            <div className="flex items-center gap-2.5 min-w-0">
-              <img
-                className="h-8 w-8 rounded-full"
-                src={
-                  user.avatarUrl ??
-                  `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discordId) % 5}.png`
-                }
-                alt=""
-              />
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-text-primary truncate">{user.username}</div>
-                <div className="text-[11px] text-text-muted truncate">@{user.username.toLowerCase()}</div>
-              </div>
+            <div className="col-span-1">
+              <span
+                className="font-bold text-sm"
+                style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  color: user.rank === 1 ? "#D4FF33" : "rgba(255,255,255,0.5)",
+                }}
+              >
+                {String(user.rank).padStart(2, "0")}
+              </span>
             </div>
 
-            <span className="text-sm font-semibold text-text-primary text-right">
-              {user.messageCount.toLocaleString()}
-            </span>
+            <div className="col-span-7 md:col-span-5 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#262626] border border-[#484847]/10 overflow-hidden flex-shrink-0">
+                <img
+                  className="w-full h-full object-cover"
+                  src={
+                    user.avatarUrl ??
+                    `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discordId) % 5}.png`
+                  }
+                  alt=""
+                />
+              </div>
+              <span className="text-sm font-bold text-white truncate">{user.username}</span>
+            </div>
+
+            <div className="col-span-4 md:col-span-3 text-right">
+              <span className="text-sm font-mono text-white">{user.messageCount.toLocaleString()}</span>
+            </div>
+
+            <div className="hidden md:block col-span-3 text-right text-xs text-[#adaaaa]">
+              —
+            </div>
           </div>
         ))}
 
         {filtered.length === 0 && (
-          <p className="py-6 text-center text-sm text-text-muted">
+          <p className="py-8 text-center text-sm text-[#767575]">
             No users found{query ? ` matching "${query}"` : ""}.
           </p>
         )}
