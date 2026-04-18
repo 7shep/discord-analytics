@@ -64,7 +64,7 @@ export function Sidebar({
             Andromeda
           </h2>
           <p className="text-[10px] text-[#adaaaa] uppercase tracking-widest mt-1">
-            V2.4 Active
+            v1.0.2 Active
           </p>
         </div>
       </div>
